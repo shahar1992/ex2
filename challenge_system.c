@@ -5,7 +5,7 @@
 #include <assert.h>
 
 #include "challenge_system.h"
-
+#define shaharhahomo 3
 /*------------------Macros and Constants--------------------------------------*/
 #define NULL_CHECK(ptr) if(ptr==NULL)\
 	return NULL_PARAMETER;
