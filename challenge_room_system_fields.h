@@ -6,7 +6,4 @@
 	long rooms_num;
 	ChallengeRoom *rooms;
 	int time;
-	struct node {
-		Visitor *visitor;
-		struct node* next_visitor;
-	}*visitors_list;
+	Visitors_list visitors_list;

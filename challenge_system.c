@@ -5,13 +5,13 @@
 #include <assert.h>
 
 #include "challenge_system.h"
+#include "challenge_room_system_fields.h"
 /*------------------Macros and Constants--------------------------------------*/
 #define NULL_CHECK(ptr) if(ptr==NULL)\
 	return NULL_PARAMETER;
 #define MAX_WORD_SIZE 51
 
 /*------------------Structs and Typedefs--------------------------------------*/
-typedef struct node *Visitor_list;
 
 /*------------------Auxiliary functions declarations.-------------------------*/
 static Challenge* find_challenge_ptr_by_id(ChallengeRoomSystem **sys, int id);
@@ -19,15 +19,15 @@ static Challenge* find_challenge_ptr_by_id(ChallengeRoomSystem **sys, int id);
 static Result free_all_memory(ChallengeRoomSystem *sys);
 
 static Result free_visitor_memory
-				(ChallengeRoomSystem *sys,Visitor_list visitor);
+				(ChallengeRoomSystem *sys,Visitors_list visitor);
 
 static Result free_all_rooms(ChallengeRoomSystem *sys);
 
 static Result free_all_challenges(ChallengeRoomSystem *sys);
 
-static Visitor_list find_visitor_in_list_by_id(ChallengeRoomSystem *sys, int id);
+static Visitors_list find_visitor_in_list_by_id(ChallengeRoomSystem *sys, int id);
 
-static Result reset_visitor_from_list(Visitor_list visitor);
+static Result reset_visitor_from_list(Visitors_list visitor);
 
 static Visitor* find_visitor_pointer_by_name
 				(ChallengeRoomSystem *sys,char* visitor_name);
@@ -35,13 +35,18 @@ static Visitor* find_visitor_pointer_by_name
 /*------------------Functions implementation---------------------------------.*/
 Result create_system(char *init_file, ChallengeRoomSystem **sys) {
 
+    if(init_file==NULL) {
+        return NULL_PARAMETER;
+    }
+    *sys=malloc(sizeof(ChallengeRoomSystem));
 	FILE *stream = fopen(init_file, "r");
 	if (stream == NULL || sys == NULL) {
 		return NULL_PARAMETER;
 	}
 	(*sys)->time = 0;
-	char word[MAX_WORD_SIZE];
+	char word[MAX_WORD_SIZE]={0};
 	fscanf(stream, "%s", word);
+    (*sys)->name=malloc(sizeof(char)*strlen(word));
 	strcpy((*sys)->name, word);
 	fscanf(stream, "%s", word);
 	(*sys)->challenges_num = atol(word);
@@ -73,9 +78,9 @@ Result create_system(char *init_file, ChallengeRoomSystem **sys) {
 		}
 	}
 	fclose(stream);
-	(*sys)->visitors_list=NULL;
-	(*sys)->visitors_list->next_visitor=NULL;
 	(*sys)->visitors_list->visitor=NULL;
+	(*sys)->visitors_list->next_visitor=NULL;
+	(*sys)->visitors_list=NULL;
 	return OK;
 }
 
@@ -126,7 +131,7 @@ Result visitor_arrive(ChallengeRoomSystem *sys, char *room_name,
 	if( (room_name==NULL) || (visitor_name==NULL) ){
 		return ILLEGAL_PARAMETER;
 	}
-	Visitor_list new_visitor=malloc(sizeof(Visitor_list));
+	Visitors_list new_visitor=malloc(sizeof(Visitors_list));
 	Result result=init_visitor(new_visitor->visitor,visitor_name,visitor_id);
 	if(result!=OK){
 		return result;
@@ -154,7 +159,7 @@ Result visitor_quit(ChallengeRoomSystem *sys, int visitor_id, int quit_time){
 	if(sys==NULL) {
 		return NULL_PARAMETER;
 	}
-	Visitor_list visitor=find_visitor_in_list_by_id(sys,visitor_id);
+	Visitors_list visitor=find_visitor_in_list_by_id(sys,visitor_id);
 	Result result=visitor_quit_room(visitor->visitor,quit_time);
 	if(result!=OK) {
 		return result;
@@ -261,8 +266,8 @@ static Result free_all_memory(ChallengeRoomSystem *sys) {
 }
 
 static Result free_visitor_memory
-				(ChallengeRoomSystem *sys,Visitor_list visitor){
-	Visitor_list current_visitor=sys->visitors_list;
+				(ChallengeRoomSystem *sys,Visitors_list visitor){
+	Visitors_list current_visitor=sys->visitors_list;
 	while(current_visitor!=NULL){
 		if (visitor == sys->visitors_list) {
 			sys->visitors_list=sys->visitors_list->next_visitor;
@@ -278,7 +283,7 @@ static Result free_visitor_memory
 	return NOT_IN_ROOM;
 }
 
-static Result reset_visitor_from_list(Visitor_list visitor){
+static Result reset_visitor_from_list(Visitors_list visitor){
 	reset_visitor(visitor->visitor);
 	visitor->visitor=NULL;
 	visitor->next_visitor=NULL;
@@ -309,8 +314,8 @@ static Result free_all_challenges(ChallengeRoomSystem *sys) {
 	return OK;
 }
 
-static Visitor_list find_visitor_in_list_by_id(ChallengeRoomSystem *sys, int id){
-	Visitor_list current_visitor=sys->visitors_list;
+static Visitors_list find_visitor_in_list_by_id(ChallengeRoomSystem *sys, int id){
+	Visitors_list current_visitor=sys->visitors_list;
 	while(current_visitor!=NULL){
 		if(current_visitor->visitor->visitor_id==id){
 			return current_visitor;
@@ -322,7 +327,7 @@ static Visitor_list find_visitor_in_list_by_id(ChallengeRoomSystem *sys, int id)
 
 static Visitor* find_visitor_pointer_by_name
 				(ChallengeRoomSystem *sys,char* visitor_name){
-	Visitor_list current_visitor=sys->visitors_list;
+	Visitors_list current_visitor=sys->visitors_list;
 	while(current_visitor!=NULL){
 		if(strcmp(visitor_name,current_visitor->visitor->visitor_name)==0){
 			return current_visitor->visitor;
