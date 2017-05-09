@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
-project(ex2)
+project(ex2-1)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
 set(SOURCE_FILES
         challenge.c
@@ -15,4 +15,4 @@ set(SOURCE_FILES
         visitor_room.c
         visitor_room.h)
 
-add_executable(ex2 ${SOURCE_FILES})
+add_executable(ex2-1 ${SOURCE_FILES})
