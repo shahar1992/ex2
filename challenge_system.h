@@ -12,7 +12,6 @@ typedef struct SChallengeRoomSystem
 } ChallengeRoomSystem;
 
 Result create_system(char *init_file, ChallengeRoomSystem **sys);
-
 Result destroy_system(ChallengeRoomSystem *sys, int destroy_time,
                       char **most_popular_challenge_p, char **challenge_best_time);
 

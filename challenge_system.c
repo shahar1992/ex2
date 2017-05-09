@@ -78,8 +78,6 @@ Result create_system(char *init_file, ChallengeRoomSystem **sys) {
 		}
 	}
 	fclose(stream);
-	(*sys)->visitors_list->visitor=NULL;
-	(*sys)->visitors_list->next_visitor=NULL;
 	(*sys)->visitors_list=NULL;
 	return OK;
 }
@@ -132,6 +130,7 @@ Result visitor_arrive(ChallengeRoomSystem *sys, char *room_name,
 		return ILLEGAL_PARAMETER;
 	}
 	Visitors_list new_visitor=malloc(sizeof(Visitors_list));
+    new_visitor->visitor=malloc(sizeof(Visitor));
 	Result result=init_visitor(new_visitor->visitor,visitor_name,visitor_id);
 	if(result!=OK){
 		return result;
@@ -160,6 +159,9 @@ Result visitor_quit(ChallengeRoomSystem *sys, int visitor_id, int quit_time){
 		return NULL_PARAMETER;
 	}
 	Visitors_list visitor=find_visitor_in_list_by_id(sys,visitor_id);
+    if(visitor==NULL) {
+        return NOT_IN_ROOM;
+    }
 	Result result=visitor_quit_room(visitor->visitor,quit_time);
 	if(result!=OK) {
 		return result;
